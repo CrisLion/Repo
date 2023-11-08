@@ -89,4 +89,18 @@ class DbHelper{
     });
   }
 
+  Future<List<ListItems>> getItems(int idList) async {
+    final List<Map<String, dynamic>> items = await db!.query("items",where: 'idList = ?', whereArgs: [idList]);
+
+    return List.generate(items.length, (i) {
+      return ListItems(
+        items[i]['id'],
+        items[i]['idList'],
+        items[i]['name'],
+        items[i]['quantity'],
+        items[i]['note']
+      );
+    });
+  }
+
 }

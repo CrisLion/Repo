@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/models/shopping_list.dart';
+import 'package:flutter_application_1/ui/items_screen.dart';
 import 'package:flutter_application_1/ui/shopping_list_dialog.dart';
 import 'package:flutter_application_1/utils/dbhelper.dart';
-
 
 void main() {
   runApp(const MyApp());
@@ -65,6 +65,9 @@ class _ShowListState extends State<ShowList> {
                 
               },
             ),
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => ItemScreen(shoppingList[index])));
+            },
           );
         }
       ),
