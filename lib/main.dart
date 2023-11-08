@@ -51,23 +51,35 @@ class _ShowListState extends State<ShowList> {
       body: ListView.builder(
         itemCount: (shoppingList != null)? shoppingList.length : 0,
         itemBuilder: (BuildContext context, int index) {
-          return ListTile(
-            title: Text(shoppingList[index].name),
-            leading: CircleAvatar(
-              child: Text(shoppingList[index].priority.toString()),
-            ),
-            trailing: IconButton(
-              icon: Icon(Icons.edit),
-              onPressed: () {
-                showDialog(
-                  context: context, 
-                  builder: (BuildContext context) => shoppingListDialog!.buildDialog(context, shoppingList[index], false));
-                
+          return Dismissible(
+            key: Key(shoppingList[index].name),
+            onDismissed: (direction) {
+              // String strName = shoppingList[index].name;
+
+              helper.deleteList(shoppingList[index]);
+              setState(() {
+                shoppingList.removeAt(index);
+              });
+
+            },
+            child: ListTile(
+              title: Text(shoppingList[index].name),
+              leading: CircleAvatar(
+                child: Text(shoppingList[index].priority.toString()),
+              ),
+              trailing: IconButton(
+                icon: Icon(Icons.edit),
+                onPressed: () {
+                  showDialog(
+                    context: context, 
+                    builder: (BuildContext context) => shoppingListDialog!.buildDialog(context, shoppingList[index], false));
+                  
+                },
+              ),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ItemScreen(shoppingList[index])));
               },
             ),
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => ItemScreen(shoppingList[index])));
-            },
           );
         }
       ),

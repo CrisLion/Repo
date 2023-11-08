@@ -103,4 +103,10 @@ class DbHelper{
     });
   }
 
+  Future<int> deleteList(ShoppingList shoppingList) async{
+    int result = await db!.delete("items", where: 'idList = ?', whereArgs: [shoppingList.id]);
+    result = await db!.delete("lists", where:  'id = ?', whereArgs: [shoppingList.id]);
+    return result;
+  }
+
 }
