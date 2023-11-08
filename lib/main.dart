@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/models/shopping_list.dart';
+import 'package:flutter_application_1/ui/shopping_list_dialog.dart';
 import 'package:flutter_application_1/utils/dbhelper.dart';
 
 
@@ -14,9 +15,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
 
 
-    return MaterialApp(
-      home: Scaffold(body: ShowList()),
-    );
+    return const MaterialApp(
+      home: ShowList());
   }
 }
 
@@ -29,6 +29,14 @@ class ShowList extends StatefulWidget {
 
 class _ShowListState extends State<ShowList> {
 
+  ShoppingListDialog? shoppingListDialog;
+
+  @override
+  void initState(){
+    shoppingListDialog = ShoppingListDialog();
+    super.initState();
+  }
+
   DbHelper helper = DbHelper();
   List<ShoppingList> shoppingList = [];
 
@@ -36,13 +44,40 @@ class _ShowListState extends State<ShowList> {
   Widget build(BuildContext context) {
     
     showData();
-    return ListView.builder(
-      itemCount: (shoppingList != null)? shoppingList.length : 0,
-      itemBuilder: (BuildContext context, int index) {
-        return ListTile(
-          title: Text(shoppingList[index].name),
-        );
-      }
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Shopping list"),
+      ),
+      body: ListView.builder(
+        itemCount: (shoppingList != null)? shoppingList.length : 0,
+        itemBuilder: (BuildContext context, int index) {
+          return ListTile(
+            title: Text(shoppingList[index].name),
+            leading: CircleAvatar(
+              child: Text(shoppingList[index].priority.toString()),
+            ),
+            trailing: IconButton(
+              icon: Icon(Icons.edit),
+              onPressed: () {
+                showDialog(
+                  context: context, 
+                  builder: (BuildContext context) => shoppingListDialog!.buildDialog(context, shoppingList[index], false));
+                
+              },
+            ),
+          );
+        }
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) => shoppingListDialog!.buildDialog(context, ShoppingList(0, '', 0), true)
+          );
+        },
+        child: const Icon(Icons.add),
+        tooltip: 'Add new shopping list',
+        )
     );
   }
   

@@ -15,6 +15,12 @@ class DbHelper{
   //esta clase es de sqflite
   Database? db;
 
+  static final DbHelper dbHelper = DbHelper.internal();
+  DbHelper.internal();
+  factory DbHelper(){
+    return dbHelper;
+  }
+
   //Ahora creo la clase "openDb"
   Future<Database> openDb() async{
     //y aqui hacemos una pregunta fundamental
