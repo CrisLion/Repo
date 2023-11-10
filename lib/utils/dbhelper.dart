@@ -3,11 +3,9 @@ import 'package:flutter_application_1/models/shopping_list.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
-
 //creo la clase DbHelper
 
-class DbHelper{
-
+class DbHelper {
   //creo una constante para la versión de la BD
   final int version = 1;
 
@@ -17,36 +15,32 @@ class DbHelper{
 
   static final DbHelper dbHelper = DbHelper.internal();
   DbHelper.internal();
-  factory DbHelper(){
+  factory DbHelper() {
     return dbHelper;
   }
 
   //Ahora creo la clase "openDb"
-  Future<Database> openDb() async{
+  Future<Database> openDb() async {
     //y aqui hacemos una pregunta fundamental
     //no existe la BD?
-    db = await openDatabase(join(await getDatabasesPath(),
+    db = await openDatabase(join(await getDatabasesPath(), 'shopping.db'),
+        onCreate: (database, version) {
+      database.execute(
+          'CREATE TABLE lists(id INTEGER PRIMARY KEY, name TEXT, priority INTEGER)');
 
-      'shopping.db'),
-      onCreate: (database, version){
+      //creo la 2da tabla
 
-        database.execute('CREATE TABLE lists(id INTEGER PRIMARY KEY, name TEXT, priority INTEGER)');
-
-        //creo la 2da tabla
-
-        database.execute('CREATE TABLE items(id INTEGER PRIMARY KEY, idList INTEGER,'
-
-            'name TEXT, quantity TEXT, note TEXT, FOREIGN KEY(idList) REFERENCES lists(id))');
-
-      }, version: version);
+      database.execute(
+          'CREATE TABLE items(id INTEGER PRIMARY KEY, idList INTEGER,'
+          'name TEXT, quantity TEXT, note TEXT, FOREIGN KEY(idList) REFERENCES lists(id))');
+    }, version: version);
 
     //no tiene else
 
     return db!; //--> Siempre se devuelve la BD
   }
 
-  Future testDB() async{
-
+  Future testDB() async {
     //llamo a openDb
     db = await openDb();
 
@@ -65,21 +59,23 @@ class DbHelper{
     //Mostramos los valores en "consola"
     print(list);
     print(item);
-
   }
 
   Future<int> insertList(ShoppingList list) async {
-    int id = await db!.insert("lists", list.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    int id = await db!.insert("lists", list.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
     return id;
   }
 
   Future<int> insertItems(ListItems item) async {
-    int id = await db!.insert("items", item.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    int id = await db!.insert("items", item.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
     return id;
   }
 
   Future<List<ShoppingList>> getLists() async {
-    final List<Map<String, dynamic>> list = await db!.rawQuery('SELECT * FROM lists');
+    final List<Map<String, dynamic>> list =
+        await db!.rawQuery('SELECT * FROM lists');
     return List.generate(list.length, (i) {
       return ShoppingList(
         list[i]['id'],
@@ -90,23 +86,26 @@ class DbHelper{
   }
 
   Future<List<ListItems>> getItems(int idList) async {
-    final List<Map<String, dynamic>> items = await db!.query("items",where: 'idList = ?', whereArgs: [idList]);
+    final List<Map<String, dynamic>> items =
+        await db!.query("items", where: 'idList = ?', whereArgs: [idList]);
 
     return List.generate(items.length, (i) {
-      return ListItems(
-        items[i]['id'],
-        items[i]['idList'],
-        items[i]['name'],
-        items[i]['quantity'],
-        items[i]['note']
-      );
+      return ListItems(items[i]['id'], items[i]['idList'], items[i]['name'],
+          items[i]['quantity'], items[i]['note']);
     });
   }
 
-  Future<int> deleteList(ShoppingList shoppingList) async{
-    int result = await db!.delete("items", where: 'idList = ?', whereArgs: [shoppingList.id]);
-    result = await db!.delete("lists", where:  'id = ?', whereArgs: [shoppingList.id]);
+  Future<int> deleteList(ShoppingList shoppingList) async {
+    int result = await db!
+        .delete("items", where: 'idList = ?', whereArgs: [shoppingList.id]);
+    result = await db!
+        .delete("lists", where: 'id = ?', whereArgs: [shoppingList.id]);
     return result;
   }
 
+  Future<int> deleteItem(ListItems listItems) async {
+    int result =
+        await db!.delete("items", where: 'id = ?', whereArgs: [listItems.id]);
+    return result;
+  }
 }
